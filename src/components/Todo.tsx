@@ -1,8 +1,9 @@
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { VscEdit } from "react-icons/vsc";
 import React, { useState, useEffect, useRef } from "react";
+import type { FormData } from "../types/types";
 
-function Todo(props: { inputValue: string }) {
+function Todo({ todo }: { todo: FormData }) {
   const [isEdit, setIsEdit] = useState(true);
   const [isDlt, setIsDlt] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -29,7 +30,7 @@ function Todo(props: { inputValue: string }) {
         {/* ✅ Checkbox for marking complete */}
         <input
           type="checkbox"
-          value={props.inputValue}
+          value={todo.task}
           className="mr-2 cursor-pointer w-8 h-8 outline-none border border-sky-800"
           checked={isComplete}
           disabled={isDlt} // can’t complete if deleted
@@ -47,7 +48,7 @@ function Todo(props: { inputValue: string }) {
           }`}
           disabled={isEdit || isComplete || isDlt}
           placeholder="Enter your tasks"
-          value={props.inputValue}
+          value={todo.task}
         />
       </div>
 

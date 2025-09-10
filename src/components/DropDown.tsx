@@ -1,6 +1,4 @@
-"use client"
-
-import * as React from "react"
+"use client" 
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,24 +11,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 interface DropDownInterface {
-  title: string,
-
+  title: string;
+  value: string;
+  setValue: (value: string) => void;
+    options: string[];
 }
-export function Dropdown({title }: DropDownInterface) {
-  const [position, setPosition] = React.useState("inprogress")
+export function Dropdown({title, value, setValue, options}: DropDownInterface) {
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="px-7 py-1">{title}</Button>
+        <Button variant="outline" className="min-w-[110px] py-1">{value ? value : title}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-32">
-        <DropdownMenuLabel>Task Status</DropdownMenuLabel>
+        <DropdownMenuLabel>{title}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-          <DropdownMenuRadioItem value="inprogress">Inprogress</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="completed">Completed</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="timeout">Timeout</DropdownMenuRadioItem>
+        <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
+          {options.map((value) => <DropdownMenuRadioItem value={value}>{value}</DropdownMenuRadioItem>)}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

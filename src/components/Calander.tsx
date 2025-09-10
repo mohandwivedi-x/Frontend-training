@@ -8,29 +8,38 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Calendarui } from "@/components/ui/calendar"
+import { Calendarui } from "@/components/ui/calendar";
+
 interface DropDownInterface {
   title: string;
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
 }
-export function Calendar({ title }: DropDownInterface) {
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
+
+export function Calendar({ title, date, setDate }: DropDownInterface) {
+  const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    console.log(date)
-  }, [date])
+    console.log(date);
+  }, [date]);
+
+  const handleSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    setOpen(false); // ✅ close dropdown after selecting
+  };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="px-7 py-1">
-          {date ? title : date}
+        <Button variant="outline" className="min-w-[110px] py-1">
+          {date ? date.toLocaleDateString() : title}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="">
+      <DropdownMenuContent>
         <Calendarui
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={handleSelect}
           className="rounded-md border shadow-sm"
           captionLayout="dropdown"
         />

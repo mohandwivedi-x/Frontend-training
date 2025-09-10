@@ -1,39 +1,44 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "./DropDown";
 import { Calendar } from "./Calander";
+import type { FormData } from "../types/types";
 
 interface TaskDialogProps {
   setIsOpen: (open: boolean) => void;
-  setTodo: React.Dispatch<React.SetStateAction<string[]>>;
-  todo: string[];
+  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
+  todo: FormData[];
 }
 
-interface FormData {
-  task: string;
-  date: Date;
-  status: string;
-  priority: string;
-}
+
+const status = ["Inprogress", "Completed", "Timeout"];
+
+const priority = ["Low", "Medium", "High"];
+
+
 
 const TaskDialog: React.FC<TaskDialogProps> = (props) => {
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<FormData>();
+  
 
   const onSubmit = (data: FormData) => {
-    console.log('data', data)
-    props.setTodo([...props.todo, data.task]);
+    const newTodos = [...props.todo, data]
+    console.log("data", data);
+    props.setTodo(newTodos);
     reset(); // clear form
     props.setIsOpen(false);
+    localStorage.setItem('todos', JSON.stringify(newTodos));
   };
 
   return (
-    <div className="w-full h-screen bg-black/50 absolute inset-0">
-      <div className="max-w-sm flex flex-col justify-between mx-auto h-[400px] mt-20 bg-white border border-sky-800 shadow-md rounded-sm px-5">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="max-w-sm flex flex-col justify-between mx-auto h-[400px] bg-white border border-sky-800 shadow-md rounded-sm px-5">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col justify-between h-full"
@@ -58,7 +63,9 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
               <textarea
                 className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-sm h-[100px]"
                 placeholder="Enter description..."
-                {...register("task", { required: "Task is required" })}
+                {...register("description", {
+                  required: "Description is required",
+                })}
               />
               {errors.task && (
                 <p className="text-red-500 text-xs mt-1">
@@ -68,13 +75,43 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
             </div>
           </div>
           <div className="flex justify-between">
-            <Calendar
-             title={'Date'} />
-            <Dropdown 
-              title = {'Status'}
+            <Controller
+              name="date"
+              control={control}
+              rules={{ required: "Date is required" }}
+              render={({ field }) => (
+                <Calendar
+                  date={field.value}
+                  setDate={field.onChange}
+                  title="Date"
+                />
+              )}
             />
-            <Dropdown 
-              title = {'Priority'}
+            <Controller
+              name="status"
+              control={control}
+              rules={{ required: "Status is required" }}
+              render={({ field }) => (
+                <Dropdown
+                  value={field.value}
+                  setValue={field.onChange}
+                  options={status}
+                  title="Status"
+                />
+              )}
+            />
+            <Controller
+              name="priority"
+              control={control}
+              rules={{ required: "Priority is required" }}
+              render={({ field }) => (
+                <Dropdown
+                  value={field.value}
+                  setValue={field.onChange}
+                  options={priority}
+                  title="Priority"
+                />
+              )}
             />
           </div>
           <div className="mb-5  flex flex-row justify-between">
