@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { VscThreeBars } from "react-icons/vsc";
 import type { FormData } from "@/types/types";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@radix-ui/react-dropdown-menu";
+import { Button } from "@/components/ui/button";
 
-const TaskCard = ({ todo }: {todo: FormData}) => {
+const TaskCard = ({ todo }: { todo: FormData }) => {
   const [isCardOpen, setIsCardOpen] = useState(false);
   const sliceText = (title: string, length: number) => {
     return title.slice(0, length) + "...";
   };
 
   const dateConvert = (date: Date | string) => {
-    return new Date(date).toLocaleDateString()
-  }
+    return new Date(date).toLocaleDateString();
+  };
 
   return (
     <div className="h-[150px] w-full flex flex-col justify-between">
@@ -30,9 +38,29 @@ const TaskCard = ({ todo }: {todo: FormData}) => {
           >
             {todo.priority}
           </h5>
-          <button>
-            <VscThreeBars />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="link"
+                className="max-h-[6px]"
+              >
+                <VscThreeBars />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-16 bg-white gap-3 rounded-sm py-1 text-sm font-light">
+              <DropdownMenuRadioGroup value={""} onValueChange={() => ""}>
+                <DropdownMenuRadioItem
+                  value={""}
+                  onClick={() => ''}
+                  className="px-2 hover:bg-gray-100"
+                >Edit</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  value={""}
+                  className="px-2 hover:bg-gray-100"
+                >Delete</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex flex-col text-left mt-3 ">
           <h2 className="text-md font-medium">{sliceText(todo.task, 25)}</h2>
@@ -79,7 +107,9 @@ const TaskCard = ({ todo }: {todo: FormData}) => {
               <h2 className="text-md font-semibold mb-2 text-gray-600">
                 {todo.task}
               </h2>
-              <label className="text-lg font-bold text-gray-700">Description:</label>
+              <label className="text-lg font-bold text-gray-700">
+                Description:
+              </label>
               <p className="text-sm font-light leading-relaxed text-gray-600">
                 {todo.description}
               </p>

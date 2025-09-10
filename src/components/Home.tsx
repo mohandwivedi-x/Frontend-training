@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { VscSearch } from "react-icons/vsc";
 import TaskDialog from "./TaskDialog";
 import type { FormData } from "../types/types";
 import CategoryCard from "./CategoryCard";
 import { CircleCheckBig, NotepadText, ShieldAlert } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@radix-ui/react-dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [todo, setTodo] = useState<FormData[]>([]);
   const [searchKey, setSearchKey] = useState("");
+  const [filterValue, setFilterValue] = useState("All");
 
   const statusCategory = ["Inprogress", "Completed", "Timeout"];
+  const filters = ["All", "Low", "Medium", "High"];
 
   useEffect(() => {
     const storedTodos = localStorage.getItem("todos");
@@ -70,24 +79,39 @@ function Home() {
                 />
                 <VscSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-sky-800" />
               </div>
-              <Button
-                type="submit"
-                variant="outline"
-                className="bg-sky-800 text-white py-1 px-3.5 rounded-sm text-sm font-extralight border-1 border-sky-900 hover:bg-white hover:text-sky-800 shadow-md"
-                onClick={() => setSearchKey("")}
-              >
-                All
-              </Button>
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[89px] bg-sky-800 text-white py-1 px-2 rounded-sm text-md font-medium border-1 border-sky-900 hover:bg-white hover:text-sky-800 shadow-md"
+                    >
+                      {filterValue}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-24 bg-white gap-3 rounded-sm">
+                    <DropdownMenuRadioGroup
+                      value={filterValue}
+                      onValueChange={setFilterValue}
+                    >
+                      {filters.map((value) => (
+                        <DropdownMenuRadioItem
+                          value={value}
+                          className="px-2 hover:bg-gray-100"
+                        >
+                          {value}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <div className="flex justify-between w-full gap-3">
               {statusCategory.map((value) => (
-                <CategoryCard title={value} todo={todo} />
+                <CategoryCard title={value} todo={todo} searchKey={searchKey} filterValue={filterValue} />
               ))}
             </div>
-
-            {/* {filtered.map((todo) => (
-            <Todo todo={todo} />
-          ))} */}
           </div>
         </div>
         {isOpen && (
