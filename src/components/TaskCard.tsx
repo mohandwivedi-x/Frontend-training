@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { VscThreeBars } from "react-icons/vsc";
-import type { FormData }  from '../types/types';
+import type { FormData } from "../types/types";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
+  DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 
@@ -15,21 +16,25 @@ const TaskCard = ({
   onEdit,
 }: {
   todo: FormData;
-  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>
-   onEdit: (task: FormData) => void;
+  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
+  onEdit: (task: FormData) => void;
 }) => {
   const [isCardOpen, setIsCardOpen] = useState(false);
   const sliceText = (title: string, length: number) => {
-    return title.length < length ? title : title.slice(0, length).trim() + "...";
+    return title.length < length
+      ? title
+      : title.slice(0, length).trim() + "...";
   };
 
   const dateConvert = (date: Date | string) => {
-    return new Date(date).toLocaleDateString(); 
+    return new Date(date).toLocaleDateString();
   };
 
   const deleteTodo = (id: string) => {
     const storedTodos = localStorage.getItem("todos");
-    const todos: FormData[] | null = storedTodos ? JSON.parse(storedTodos) : null;
+    const todos: FormData[] | null = storedTodos
+      ? JSON.parse(storedTodos)
+      : null;
     const updatedTodos = todos?.filter((todo) => todo.id !== id);
     setTodo(updatedTodos!);
     localStorage.removeItem("todos");
@@ -38,10 +43,7 @@ const TaskCard = ({
 
   return (
     <div className="w-full flex flex-col justify-between">
-      <div
-        className="bg-slate-100 mx-3 rounded-sm shadow-md px-3"
-        // onClick={() => setIsCardOpen(true)}
-      >
+      <div className="bg-slate-100 mx-3 rounded-sm shadow-md px-3">
         <div className="flex flex-row justify-between mt-2">
           <h5
             className={`px-3 text-sm rounded-md ${
@@ -57,28 +59,31 @@ const TaskCard = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="link" className="max-h-[6px] cursor-pointer">
-                <VscThreeBars/>
+                <VscThreeBars />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-16 bg-white gap-3 rounded-sm text-sm font-light shadow-md">
               <DropdownMenuRadioGroup>
-                <button
+                <DropdownMenuItem
                   onClick={() => onEdit(todo)}
                   className="w-full px-2 py-1 hover:bg-blue-100 text-blue-600 cursor-pointer"
                 >
                   Edit
-                </button>
-                <button
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => deleteTodo(todo.id)}
                   className="w-full px-2 py-1 hover:bg-red-100 text-red-600 cursor-pointer"
                 >
                   Delete
-                </button>
+                </DropdownMenuItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <button className="flex flex-col text-left mt-3 cursor-pointer" onClick={() => setIsCardOpen(true)}>
+        <button
+          className="flex flex-col text-left mt-3 cursor-pointer"
+          onClick={() => setIsCardOpen(true)}
+        >
           <h2 className="text-md font-medium">{sliceText(todo.task, 25)}</h2>
           <p className="text-xs font-extralight">
             {sliceText(todo.description, 80)}

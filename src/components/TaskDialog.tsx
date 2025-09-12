@@ -10,6 +10,7 @@ interface TaskDialogProps {
   setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
   todo: FormData[];
   formData: FormData | undefined;
+  setFormData: React.Dispatch<React.SetStateAction<FormData | undefined>>;
 }
 
 const status = ["Inprogress", "Completed", "Timeout"];
@@ -21,6 +22,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   setIsOpen,
   setTodo,
   formData,
+  setFormData,
 }) => {
   const {
     register,
@@ -42,7 +44,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
     let updatedTodos;
     if (formData) {
       updatedTodos = todo.map((t) =>
-        t.id === formData.id ? { ...t, ...data } : t
+        t.id === formData?.id ? { ...t, ...data } : t
       );
     } else {
       const id = uuidv4();
@@ -52,11 +54,12 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
     setTodo(updatedTodos);
     localStorage.setItem("todos", JSON.stringify(updatedTodos));
     reset();
+    if(formData) setFormData(undefined);
     setIsOpen(false);
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-40">
       <div className="max-w-sm flex flex-col justify-between mx-auto h-[400px] bg-white border border-sky-800 shadow-md rounded-sm px-5">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -119,9 +122,15 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               control={control}
               rules={{
                 required: "Status is required",
-                validate: (value) =>
-                  (value !== "Completed" && value !== "Timeout") ||
-                  "Status can not be completed or Timeout",
+                validate: (value) => {
+                  if (
+                    !formData &&
+                    (value === "Completed" || value === "Timeout")
+                  ) {
+                    return "Status cannot be Completed or Timeout when creating a new task";
+                  }
+                  return true;
+                },
               }}
               render={({ field }) => (
                 <Dropdown
@@ -153,8 +162,9 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               type="submit"
               className="text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
               onClick={() => {
-                setIsOpen(false);
                 reset();
+                setFormData(undefined);
+                setIsOpen(false);
               }}
             >
               Cancel

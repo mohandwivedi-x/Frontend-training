@@ -19,6 +19,9 @@ function Home() {
   const [searchKey, setSearchKey] = useState("");
   const [filterValue, setFilterValue] = useState("All");
   const [editTask, setEditTask] = useState<FormData | undefined>(undefined);
+  let totalTodos: number = 0;
+  let totalCompleted: number = 0;
+  let totalExpired: number = 0;
 
   const statusCategory = ["Inprogress", "Completed", "Timeout"];
   const filters = ["All", "Low", "Medium", "High"];
@@ -28,7 +31,12 @@ function Home() {
     if (storedTodos) {
       setTodo(JSON.parse(storedTodos));
     }
+    
   }, []);
+
+      totalTodos = todo.length
+      totalCompleted = todo.filter((t) => t.status === "Completed").length
+      totalExpired = todo.filter((t) => t.status === "Timeout").length
 
   return (
     <div className="flex text-start pt-5 ml-5">
@@ -37,21 +45,21 @@ function Home() {
           <ShieldAlert size={60} color="red" className="mt-2" />
           <div className="mt-4">
             <h2 className="text-md text-gray-500">Expired Tasks</h2>
-            <h2 className="text-3xl font-bold">{"2"}</h2>
+            <h2 className="text-3xl font-bold">{totalExpired}</h2>
           </div>
         </div>
         <div className="h-[150px] w-full flex flex-row justify-center gap-10 items-center bg-slate-100 rounded-sm shadow-md px-3">
           <NotepadText size={60} color="orange" className="mt-2" />
           <div className="mt-3">
             <h2 className="text-md text-gray-500">All Active Tasks</h2>
-            <h2 className="text-3xl font-bold">{"2"}</h2>
+            <h2 className="text-3xl font-bold">{totalTodos}</h2>
           </div>
         </div>
         <div className="h-[150px] w-full flex flex-row justify-center gap-10 items-center bg-slate-100 rounded-sm shadow-md px-3">
           <CircleCheckBig size={60} color="blue" className="mt-2" />
           <div className="mt-2">
             <h2 className="text-md text-gray-500">Completed Tasks</h2>
-            <h2 className="text-3xl font-bold">{"2"}</h2>
+            <h2 className="text-3xl font-bold">{totalCompleted}</h2>
           </div>
         </div>
         <div className="mx-2">
@@ -131,6 +139,7 @@ function Home() {
             todo={todo}
             setTodo={setTodo}
             formData={editTask}
+            setFormData={setEditTask}
           />
         )}
       </div>

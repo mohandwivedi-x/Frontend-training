@@ -1,6 +1,6 @@
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { VscEdit } from "react-icons/vsc";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FormData } from "../types/types";
 
 function Todo({ todo }: { todo: FormData }) {
