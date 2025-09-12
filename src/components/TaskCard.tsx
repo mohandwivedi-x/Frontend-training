@@ -1,30 +1,46 @@
 import React, { useState } from "react";
 import { VscThreeBars } from "react-icons/vsc";
-import type { FormData } from "@/types/types";
+import type { FormData }  from '../types/types';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-const TaskCard = ({ todo }: { todo: FormData }) => {
+const TaskCard = ({
+  todo,
+  setTodo,
+  onEdit,
+}: {
+  todo: FormData;
+  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>
+   onEdit: (task: FormData) => void;
+}) => {
   const [isCardOpen, setIsCardOpen] = useState(false);
   const sliceText = (title: string, length: number) => {
-    return title.slice(0, length) + "...";
+    return title.length < length ? title : title.slice(0, length).trim() + "...";
   };
 
   const dateConvert = (date: Date | string) => {
-    return new Date(date).toLocaleDateString();
+    return new Date(date).toLocaleDateString(); 
+  };
+
+  const deleteTodo = (id: string) => {
+    const storedTodos = localStorage.getItem("todos");
+    const todos: FormData[] | null = storedTodos ? JSON.parse(storedTodos) : null;
+    const updatedTodos = todos?.filter((todo) => todo.id !== id);
+    setTodo(updatedTodos!);
+    localStorage.removeItem("todos");
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
 
   return (
-    <div className="h-[150px] w-full flex flex-col justify-between">
-      <button
-        className="bg-slate-100 mx-3 rounded-sm shadow-md px-3 cursor-pointer"
-        onClick={() => setIsCardOpen(true)}
+    <div className="w-full flex flex-col justify-between">
+      <div
+        className="bg-slate-100 mx-3 rounded-sm shadow-md px-3"
+        // onClick={() => setIsCardOpen(true)}
       >
         <div className="flex flex-row justify-between mt-2">
           <h5
@@ -40,40 +56,40 @@ const TaskCard = ({ todo }: { todo: FormData }) => {
           </h5>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="link"
-                className="max-h-[6px]"
-              >
-                <VscThreeBars />
+              <Button variant="link" className="max-h-[6px] cursor-pointer">
+                <VscThreeBars/>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-16 bg-white gap-3 rounded-sm py-1 text-sm font-light">
-              <DropdownMenuRadioGroup value={""} onValueChange={() => ""}>
-                <DropdownMenuRadioItem
-                  value={""}
-                  onClick={() => ''}
-                  className="px-2 hover:bg-gray-100"
-                >Edit</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value={""}
-                  className="px-2 hover:bg-gray-100"
-                >Delete</DropdownMenuRadioItem>
+            <DropdownMenuContent className="w-16 bg-white gap-3 rounded-sm text-sm font-light shadow-md">
+              <DropdownMenuRadioGroup>
+                <button
+                  onClick={() => onEdit(todo)}
+                  className="w-full px-2 py-1 hover:bg-blue-100 text-blue-600 cursor-pointer"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteTodo(todo.id)}
+                  className="w-full px-2 py-1 hover:bg-red-100 text-red-600 cursor-pointer"
+                >
+                  Delete
+                </button>
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex flex-col text-left mt-3 ">
+        <button className="flex flex-col text-left mt-3 cursor-pointer" onClick={() => setIsCardOpen(true)}>
           <h2 className="text-md font-medium">{sliceText(todo.task, 25)}</h2>
           <p className="text-xs font-extralight">
-            {sliceText(todo.description, 50)}
+            {sliceText(todo.description, 80)}
           </p>
-        </div>
+        </button>
         <div className="text-left mb-2">
           <label className="text-xs font-bold text-slate-500">
             Deadline: {dateConvert(todo.date)}
           </label>
         </div>
-      </button>
+      </div>
       {isCardOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           {/* Card Popup */}

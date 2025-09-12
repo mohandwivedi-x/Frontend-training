@@ -13,10 +13,11 @@ import { Calendarui } from "@/components/ui/calendar";
 interface DropDownInterface {
   title: string;
   date: Date | undefined;
+  color: string;
   setDate: (date: Date | undefined) => void;
 }
 
-export function Calendar({ title, date, setDate }: DropDownInterface) {
+export function Calendar({ title, date, setDate, color }: DropDownInterface) {
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -28,11 +29,15 @@ export function Calendar({ title, date, setDate }: DropDownInterface) {
     setOpen(false); // ✅ close dropdown after selecting
   };
 
+  const convertDate = (date: Date) => {
+    return new Date(date).toLocaleDateString();
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="min-w-[110px] py-1">
-          {date ? date.toLocaleDateString() : title}
+        <Button variant="outline" className={`min-w-[110px] py-1 ${color} hover:${color}`}>
+          {date ? convertDate(date) : title}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

@@ -3,37 +3,56 @@ import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "./DropDown";
 import { Calendar } from "./Calander";
 import type { FormData } from "../types/types";
+import { v4 as uuidv4 } from "uuid";
 
 interface TaskDialogProps {
   setIsOpen: (open: boolean) => void;
   setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
   todo: FormData[];
+  formData: FormData | undefined;
 }
-
 
 const status = ["Inprogress", "Completed", "Timeout"];
 
 const priority = ["Low", "Medium", "High"];
 
-
-
-const TaskDialog: React.FC<TaskDialogProps> = (props) => {
+const TaskDialog: React.FC<TaskDialogProps> = ({
+  todo,
+  setIsOpen,
+  setTodo,
+  formData,
+}) => {
   const {
     register,
     handleSubmit,
     reset,
     control,
     formState: { errors },
-  } = useForm<FormData>();
-  
+  } = useForm<FormData>({
+    defaultValues: {
+      task: formData ? formData.task : "",
+      description: formData ? formData.description : "",
+      date: formData ? formData.date : undefined,
+      status: formData ? formData.status : undefined,
+      priority: formData ? formData.priority : undefined,
+    },
+  });
 
   const onSubmit = (data: FormData) => {
-    const newTodos = [...props.todo, data]
-    console.log("data", data);
-    props.setTodo(newTodos);
-    reset(); // clear form
-    props.setIsOpen(false);
-    localStorage.setItem('todos', JSON.stringify(newTodos));
+    let updatedTodos;
+    if (formData) {
+      updatedTodos = todo.map((t) =>
+        t.id === formData.id ? { ...t, ...data } : t
+      );
+    } else {
+      const id = uuidv4();
+      updatedTodos = [...todo, { ...data, id }];
+    }
+
+    setTodo(updatedTodos);
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    reset();
+    setIsOpen(false);
   };
 
   return (
@@ -50,7 +69,9 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
               <input
                 className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-sm "
                 placeholder="Enter your task..."
-                {...register("task", { required: "Task is required" })}
+                {...register("task", {
+                  required: "Task title is required",
+                })}
               />
               {errors.task && (
                 <p className="text-red-500 text-xs mt-1">
@@ -67,9 +88,9 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
                   required: "Description is required",
                 })}
               />
-              {errors.task && (
+              {errors.description && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.task.message}
+                  {errors.description.message}
                 </p>
               )}
             </div>
@@ -78,25 +99,37 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
             <Controller
               name="date"
               control={control}
-              rules={{ required: "Date is required" }}
+              rules={{
+                required: "Date is required",
+                validate: (value) =>
+                  new Date(value) > new Date() ||
+                  "Please select a valid future date",
+              }}
               render={({ field }) => (
                 <Calendar
                   date={field.value}
                   setDate={field.onChange}
                   title="Date"
+                  color={errors.date ? "bg-red-400" : ""}
                 />
               )}
             />
             <Controller
               name="status"
               control={control}
-              rules={{ required: "Status is required" }}
+              rules={{
+                required: "Status is required",
+                validate: (value) =>
+                  (value !== "Completed" && value !== "Timeout") ||
+                  "Status can not be completed or Timeout",
+              }}
               render={({ field }) => (
                 <Dropdown
                   value={field.value}
                   setValue={field.onChange}
                   options={status}
                   title="Status"
+                  color={errors.status ? "bg-red-400" : ""}
                 />
               )}
             />
@@ -110,15 +143,19 @@ const TaskDialog: React.FC<TaskDialogProps> = (props) => {
                   setValue={field.onChange}
                   options={priority}
                   title="Priority"
+                  color={errors.priority ? "bg-red-400" : ""}
                 />
               )}
             />
           </div>
           <div className="mb-5  flex flex-row justify-between">
             <button
-              type="button"
+              type="submit"
               className="text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
-              onClick={() => props.setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                reset();
+              }}
             >
               Cancel
             </button>

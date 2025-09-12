@@ -18,6 +18,7 @@ function Home() {
   const [todo, setTodo] = useState<FormData[]>([]);
   const [searchKey, setSearchKey] = useState("");
   const [filterValue, setFilterValue] = useState("All");
+  const [editTask, setEditTask] = useState<FormData | undefined>(undefined);
 
   const statusCategory = ["Inprogress", "Completed", "Timeout"];
   const filters = ["All", "Low", "Medium", "High"];
@@ -30,7 +31,7 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex text-start pt-8 ml-5">
+    <div className="flex text-start pt-5 ml-5">
       <div className=" w-1/5 flex flex-col pt-10 gap-3 mx-3">
         <div className="h-[150px] w-full flex flex-row justify-center gap-10 items-center bg-slate-100 rounded-sm shadow-md px-3">
           <ShieldAlert size={60} color="red" className="mt-2" />
@@ -64,7 +65,7 @@ function Home() {
           </button>
         </div>
       </div>
-      <div className="w-4/5 h-screen relative px-5">
+      <div className="w-full h-screen relative px-5">
         <div className="w-full h-screen flex flex-col items-center mx-auto">
           <h2 className="text-2xl font-bold">My Todos</h2>
           <div className="flex items-center flex-col w-full mt-2">
@@ -89,7 +90,7 @@ function Home() {
                       {filterValue}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-24 bg-white gap-3 rounded-sm">
+                  <DropdownMenuContent className="w-24 bg-white gap-3 rounded-sm shadow-md">
                     <DropdownMenuRadioGroup
                       value={filterValue}
                       onValueChange={setFilterValue}
@@ -109,13 +110,28 @@ function Home() {
             </div>
             <div className="flex justify-between w-full gap-3">
               {statusCategory.map((value) => (
-                <CategoryCard title={value} todo={todo} searchKey={searchKey} filterValue={filterValue} />
+                <CategoryCard
+                  title={value}
+                  todo={todo}
+                  searchKey={searchKey}
+                  filterValue={filterValue}
+                  setTodo={setTodo}
+                  onEdit={(task) => {
+                    setEditTask(task);
+                    setIsOpen(true);
+                  }}
+                />
               ))}
             </div>
           </div>
         </div>
         {isOpen && (
-          <TaskDialog setIsOpen={setIsOpen} todo={todo} setTodo={setTodo} />
+          <TaskDialog
+            setIsOpen={setIsOpen}
+            todo={todo}
+            setTodo={setTodo}
+            formData={editTask}
+          />
         )}
       </div>
     </div>
