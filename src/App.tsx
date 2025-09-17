@@ -1,8 +1,11 @@
+import TodoContextProvider from './context/todoContextProvider'
 import AppRoutes from './routes/AppRoutes'
 
 const App = () => {
   return (
-    <AppRoutes />
+    <TodoContextProvider >
+      <AppRoutes />
+    </TodoContextProvider>
   )
 }
 

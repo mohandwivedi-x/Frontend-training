@@ -1,29 +1,19 @@
-import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "./DropDown";
-import { Calendar } from "./Calander";
+import { Calendar } from "./Calendar";
 import type { FormData } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
-
-interface TaskDialogProps {
-  setIsOpen: (open: boolean) => void;
-  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
-  todo: FormData[];
-  formData: FormData | undefined;
-  setFormData: React.Dispatch<React.SetStateAction<FormData | undefined>>;
-}
+import { useTodo } from "@/hooks/useTodo";
 
 const status = ["Inprogress", "Completed", "Timeout"];
 
 const priority = ["Low", "Medium", "High"];
 
-const TaskDialog: React.FC<TaskDialogProps> = ({
-  todo,
+const TaskDialog = ({
   setIsOpen,
-  setTodo,
-  formData,
-  setFormData,
-}) => {
+}: {setIsOpen: (isOpen: boolean) => void}) => {
+
+  const {  editTask: formData, setEditTask: setFormData } = useTodo()
   const {
     register,
     handleSubmit,
@@ -40,18 +30,20 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
     },
   });
 
+  const { todos, setTodos } = useTodo();
+
   const onSubmit = (data: FormData) => {
     let updatedTodos;
     if (formData) {
-      updatedTodos = todo.map((t) =>
+      updatedTodos = todos.map((t) =>
         t.id === formData?.id ? { ...t, ...data } : t
       );
     } else {
       const id = uuidv4();
-      updatedTodos = [...todo, { ...data, id }];
+      updatedTodos = [...todos, { ...data, id }];
     }
 
-    setTodo(updatedTodos);
+    setTodos(updatedTodos);
     localStorage.setItem("todos", JSON.stringify(updatedTodos));
     reset();
     if(formData) setFormData(undefined);

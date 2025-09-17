@@ -1,24 +1,15 @@
-import React from "react";
 import TaskCard from "./TaskCard";
-import type { FormData } from "../types/types";
+import { useTodo } from "@/hooks/useTodo";
 
 const CategoryCard = ({
   title,
-  todo,
-  searchKey,
-  filterValue,
-  setTodo,
-  onEdit,
 }: {
   title: string;
-  todo: FormData[];
-  searchKey: string;
-  filterValue: string;
-  setTodo: React.Dispatch<React.SetStateAction<FormData[]>>;
-  onEdit: (task: FormData) => void;
 }) => {
-  const searched = todo.filter((todo) =>
-    todo.task.toLowerCase().includes(searchKey.toLowerCase())
+  const {todos, searchKey, filterValue} = useTodo();
+
+  const searched = todos.filter((todo) =>
+    todo.task.toLowerCase().includes(searchKey!.toLowerCase())
   );
 
   const priorityFiltered =
@@ -34,7 +25,7 @@ const CategoryCard = ({
       <div className="px-2 flex flex-col gap-3">
         {finalTodos.length > 0 ? (
           finalTodos.map((t) => (
-            <TaskCard key={t.id} todo={t} setTodo={setTodo} onEdit={onEdit} />
+            <TaskCard key={t.id} todo={t}/>
           ))
         ) : (
           <p className="text-gray-500 text-sm">No tasks</p>
