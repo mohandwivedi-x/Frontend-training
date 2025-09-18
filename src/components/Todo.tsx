@@ -30,7 +30,7 @@ function Todo({ todo }: { todo: FormData }) {
         {/* ✅ Checkbox for marking complete */}
         <input
           type="checkbox"
-          value={todo.task}
+          value={todo.title}
           className="mr-2 cursor-pointer w-8 h-8 outline-none border border-sky-800"
           checked={isComplete}
           disabled={isDlt} // can’t complete if deleted
@@ -48,7 +48,7 @@ function Todo({ todo }: { todo: FormData }) {
           }`}
           disabled={isEdit || isComplete || isDlt}
           placeholder="Enter your tasks"
-          value={todo.task}
+          value={todo.title}
         />
       </div>
 

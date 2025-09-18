@@ -20,10 +20,6 @@ interface DropDownInterface {
 export function Calendar({ title, date, setDate, color }: DropDownInterface) {
   const [open, setOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    console.log(date);
-  }, [date]);
-
   const handleSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
     setOpen(false); // ✅ close dropdown after selecting

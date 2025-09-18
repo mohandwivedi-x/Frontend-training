@@ -1,6 +1,6 @@
 import React, { useState, type ReactNode } from "react";
 import TodoContext from "./todoContext";
-import type { FormData } from "../types/types"; // adjust path as needed
+import type { FormData } from "@/types/types";
 
 interface TodoContextProviderProps {
   children: ReactNode;
@@ -9,14 +9,13 @@ interface TodoContextProviderProps {
 const TodoContextProvider: React.FC<TodoContextProviderProps> = ({
   children,
 }) => {
-  const [todos, setTodos] = useState<FormData[]>([]);
-  const [editTask, setEditTask] = useState<FormData | undefined>(undefined);
   const [searchKey, setSearchKey] = useState("");
   const [filterValue, setFilterValue] = useState("All");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [formData, setFormData] = useState<FormData | undefined>(undefined);
 
   return (
-    <TodoContext.Provider value={{ todos, setTodos, editTask, setEditTask, searchKey, setSearchKey, filterValue, setFilterValue, isOpen, setIsOpen}}>
+    <TodoContext.Provider value={{searchKey, setSearchKey, filterValue, setFilterValue, isEdit, setIsEdit, formData, setFormData}}>
       {children}
     </TodoContext.Provider>
   );

@@ -2,18 +2,17 @@ import { useForm, Controller } from "react-hook-form";
 import { Dropdown } from "./DropDown";
 import { Calendar } from "./Calendar";
 import type { FormData } from "../types/types";
-import { v4 as uuidv4 } from "uuid";
 import { useTodo } from "@/hooks/useTodo";
+import { useDispatch } from "react-redux";
+import { addTodo, updateTodo } from "@/features/todo.slice";
 
 const status = ["Inprogress", "Completed", "Timeout"];
-
 const priority = ["Low", "Medium", "High"];
 
-const TaskDialog = ({
-  setIsOpen,
-}: {setIsOpen: (isOpen: boolean) => void}) => {
+const TaskDialog = () => {
+  const dispatch = useDispatch();
 
-  const {  editTask: formData, setEditTask: setFormData } = useTodo()
+  const { setIsEdit, formData, setFormData } = useTodo();
   const {
     register,
     handleSubmit,
@@ -22,7 +21,7 @@ const TaskDialog = ({
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      task: formData ? formData.task : "",
+      title: formData ? formData.title : "",
       description: formData ? formData.description : "",
       date: formData ? formData.date : undefined,
       status: formData ? formData.status : undefined,
@@ -30,54 +29,58 @@ const TaskDialog = ({
     },
   });
 
-  const { todos, setTodos } = useTodo();
-
   const onSubmit = (data: FormData) => {
-    let updatedTodos;
     if (formData) {
-      updatedTodos = todos.map((t) =>
-        t.id === formData?.id ? { ...t, ...data } : t
-      );
+      dispatch(updateTodo({ id: formData.id, ...data }));
     } else {
-      const id = uuidv4();
-      updatedTodos = [...todos, { ...data, id }];
+      dispatch(addTodo(data));
     }
-
-    setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
     reset();
-    if(formData) setFormData(undefined);
-    setIsOpen(false);
+    if (formData) setFormData(undefined);
+    setIsEdit(false);
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-40">
-      <div className="max-w-sm flex flex-col justify-between mx-auto h-[400px] bg-white border border-sky-800 shadow-md rounded-sm px-5">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-40 p-2 sm:p-4">
+      <div
+        className="
+        w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl
+        h-[85vh] sm:h-[500px] md:h-[550px]
+        flex flex-col justify-between
+        mx-auto bg-white border border-sky-800 shadow-md rounded-md
+        px-4 sm:px-6 md:px-8
+        overflow-y-auto
+      "
+      >
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col justify-between h-full"
         >
           <div className="mx-auto w-full mt-2">
-            <h2 className="text-xl font-bold text-center">New Note</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center">
+              New Note
+            </h2>
+
+            {/* Title */}
             <div className="my-2">
-              <h5 className="text-sm ">Title</h5>
+              <h5 className="text-xs sm:text-sm">Title</h5>
               <input
-                className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-sm "
-                placeholder="Enter your task..."
-                {...register("task", {
-                  required: "Task title is required",
-                })}
+                className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-xs sm:text-sm"
+                placeholder="Enter your title..."
+                {...register("title", { required: "Task title is required" })}
               />
-              {errors.task && (
+              {errors.title && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.task.message}
+                  {errors.title.message}
                 </p>
               )}
             </div>
+
+            {/* Description */}
             <div className="my-2 mt-5">
-              <h5 className="text-sm ">Description</h5>
+              <h5 className="text-xs sm:text-sm">Description</h5>
               <textarea
-                className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-sm h-[100px]"
+                className="w-full mt-1 py-1 px-2 outline-1 outline-sky-800 rounded-sm shadow-md text-xs sm:text-sm h-[80px] sm:h-[100px] md:h-[120px]"
                 placeholder="Enter description..."
                 {...register("description", {
                   required: "Description is required",
@@ -90,7 +93,9 @@ const TaskDialog = ({
               )}
             </div>
           </div>
-          <div className="flex justify-between">
+
+          {/* Controls (Date, Status, Priority) */}
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-2">
             <Controller
               name="date"
               control={control}
@@ -102,7 +107,7 @@ const TaskDialog = ({
               }}
               render={({ field }) => (
                 <Calendar
-                  date={field.value}
+                  date={new Date(field.value)}
                   setDate={field.onChange}
                   title="Date"
                   color={errors.date ? "bg-red-400" : ""}
@@ -119,7 +124,7 @@ const TaskDialog = ({
                     !formData &&
                     (value === "Completed" || value === "Timeout")
                   ) {
-                    return "Status cannot be Completed or Timeout when creating a new task";
+                    return "Status cannot be Completed or Timeout when creating a new title";
                   }
                   return true;
                 },
@@ -149,21 +154,23 @@ const TaskDialog = ({
               )}
             />
           </div>
-          <div className="mb-5  flex flex-row justify-between">
+
+          {/* Footer Buttons */}
+          <div className="mb-5 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
             <button
-              type="submit"
-              className="text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
+              type="button"
+              className="w-full sm:w-auto text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
               onClick={() => {
                 reset();
-                setFormData(undefined);
-                setIsOpen(false);
+                // setFormData(undefined);
+                setIsEdit(false);
               }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
+              className="w-full sm:w-auto text-sky-800 py-1 px-3.5 rounded-sm text-sm font-medium border border-sky-800 hover:bg-sky-800 hover:text-white shadow-md"
             >
               Submit
             </button>
